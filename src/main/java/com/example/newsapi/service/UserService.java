@@ -10,6 +10,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.Optional;
 
 @Service
@@ -27,8 +28,30 @@ public class UserService implements UserDetailsService {
         if (byUsername.isPresent()) {
             throw new RuntimeException("");
         }
+        user.setCreationDate(LocalDate.now());
+        user.setLastEditDate(LocalDate.now());
         user.setPassword(passwordEncoder().encode(user.getPassword()));
         return userRepository.save(user);
+    }
+
+    public User login(User user){
+        User authUser = findByUsername(user.getUsername());
+        if (passwordEncoder().matches(user.getPassword(), authUser.getPassword())) {
+            return authUser;
+        }
+        throw new RuntimeException("INCORRECT PASSWORD");
+    }
+
+    @Transactional(readOnly = true)
+    public User findByUsername(String username){
+        return getCheckedUser(userRepository.findByUsername(username));
+    }
+
+    private User getCheckedUser(Optional<User> user){
+        if (user.isEmpty()) {
+            throw new RuntimeException("NOT FOUND");
+        }
+        return user.get();
     }
 
     @Override
