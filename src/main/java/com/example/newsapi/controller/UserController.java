@@ -1,5 +1,7 @@
 package com.example.newsapi.controller;
 
+import com.example.newsapi.configuration.security.jwt.JWTTokenProvider;
+import com.example.newsapi.dto.user.AuthDto;
 import com.example.newsapi.dto.user.RegDto;
 import com.example.newsapi.dto.user.UserDto;
 import com.example.newsapi.entity.user.User;
@@ -24,24 +26,20 @@ import static org.springframework.http.ResponseEntity.ok;
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
+    private final JWTTokenProvider jwtTokenProvider;
 
     @PostMapping
     public ResponseEntity<UserDto> registration(@RequestBody @Valid RegDto regDto,
                                                 BindingResult bindingResult){
         checkBindingResult(bindingResult);
-        return ok(INSTANCE.userToUserDto(userService.save(getRegUser(regDto))));
+        return ok(INSTANCE.userToUserDto(userService.save(INSTANCE.regDtoToUser(regDto))));
     }
 
-    private User getRegUser(RegDto regDto){
-        return User.builder()
-                .username(regDto.getUsername())
-                .password(regDto.getPassword())
-                .name(regDto.getName())
-                .surname(regDto.getSurname())
-                .parentName(regDto.getParentName())
-                .creationDate(LocalDate.now())
-                .lastEditDate(LocalDate.now())
-                .roles(regDto.getRoles())
-                .build();
+    @PostMapping("/auth")
+    public ResponseEntity<String> authorization(@RequestBody @Valid AuthDto authDto,
+                                                BindingResult bindingResult){
+        checkBindingResult(bindingResult);
+        User user = userService.login(INSTANCE.authDtoToUser(authDto));
+        return ok(jwtTokenProvider.generateToken(user.getUsername(), user.getRoles()));
     }
 }
