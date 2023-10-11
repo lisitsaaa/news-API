@@ -1,5 +1,6 @@
 package com.example.newsapi.controller.util;
 
+import com.example.newsapi.exception.InvalidDataException;
 import org.springframework.validation.BindingResult;
 
 import java.util.HashMap;
@@ -11,7 +12,7 @@ public final class Validator {
             Map<String, String> errors = new HashMap<>();
             bindingResult.getFieldErrors()
                     .forEach(fieldError -> errors.put(fieldError.getField(), fieldError.getDefaultMessage()));
-            throw new RuntimeException(String.valueOf(errors));
+            throw new InvalidDataException(String.valueOf(errors));
         }
     }
 }
