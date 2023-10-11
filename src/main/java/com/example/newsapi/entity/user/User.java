@@ -23,7 +23,7 @@ public class User extends AbstractEntity implements UserDetails {
     private LocalDate creationDate;
     private LocalDate lastEditDate;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @Enumerated(EnumType.STRING)
     private Set<Role> roles;
 
