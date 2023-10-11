@@ -36,7 +36,7 @@ public class CommentService {
 
     @Transactional(readOnly = true)
     public List<Comment> getAllByNewsWithPagination(PageRequest pageRequest, News news){
-        return commentsCheck(commentRepository.findAllByNews(pageRequest).getContent());
+        return commentsCheck(commentRepository.findAllByNews(pageRequest, news).getContent());
     }
 
     @Transactional(readOnly = true)
